@@ -35,12 +35,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .authorizeRequests(authorize -> authorize
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // Restrict access to /admin/** to users with role ADMIN
+               // .authorizeRequests(authorize -> authorize
+                .authorizeHttpRequests().requestMatchers("/admin/**").authenticated()
+                        //.requestMatchers("/admin/**").hasRole("ADMIN")// Restrict access to /admin/** to users with role ADMIN
                         .requestMatchers(HttpMethod.GET, "/user/**").hasRole("USER") // Allow only GET requests for /user/** to users with role USER
                         .requestMatchers("/library/Welcome").permitAll()
-                        .anyRequest().authenticated() // Require authentication for any other request
-                )
+                        .anyRequest().authenticated()
+                .and()
                 .formLogin(); // Use form-based login
 
         return http.build();
