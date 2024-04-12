@@ -15,7 +15,9 @@ import java.util.List;
 public class LibraryService {
 @Autowired
     private AdminRepository adminRepository;
+@Autowired
     private UserRepository  userRepository;
+@Autowired
     private BookRepository  bookRepository;
 
     public List<User> getAllUsers() {

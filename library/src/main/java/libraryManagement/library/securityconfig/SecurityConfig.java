@@ -32,31 +32,40 @@ public class SecurityConfig {
 
         return new InMemoryUserDetailsManager(admin, user);
     }
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-               // .authorizeRequests(authorize -> authorize
-                .authorizeHttpRequests().requestMatchers("/admin/**").authenticated()
-                        //.requestMatchers("/admin/**").hasRole("ADMIN")// Restrict access to /admin/** to users with role ADMIN
-                        .requestMatchers(HttpMethod.GET, "/user/**").hasRole("USER") // Allow only GET requests for /user/** to users with role USER
-                        .requestMatchers("/library/Welcome").permitAll()
-                        .anyRequest().authenticated()
-                .and()
-                .formLogin(); // Use form-based login
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http.csrf().disable()
+//                // .authorizeRequests(authorize -> authorize
+//                .authorizeHttpRequests().requestMatchers("/admin/**").authenticated()
+//                .requestMatchers("/user/**").authenticated()
+//                //.requestMatchers("/admin/**").hasRole("ADMIN")// Restrict access to /admin/** to users with role ADMIN
+//              //  .requestMatchers(HttpMethod.GET, "/user/**").hasRole("USER") // Allow only GET requests for /user/** to users with role USER
+//                .requestMatchers("/library/Welcome").permitAll()
+//                .anyRequest().authenticated()
+//                .and()
+//                .formLogin(); // Use form-based login
+//
+//        return http.build();
+    //}
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf().disable()
+            .httpBasic()
+            .and()
+            // .authorizeRequests(authorize -> authorize
+            .authorizeHttpRequests().requestMatchers(HttpMethod.POST, "/admin/").authenticated()
+            //.requestMatchers("/admin/**").hasRole("ADMIN")// Restrict access to /admin/** to users with role ADMIN
+            .requestMatchers(HttpMethod.GET, "/user/**").hasRole("USER") // Allow only GET requests for /user/** to users with role USER
+            .requestMatchers("/library/Welcome").permitAll()
+            .anyRequest().authenticated()
+            .and()
+            .formLogin(); // Use form-based login
 
-        return http.build();
-    }
+    return http.build();
+}
 
     @Bean
     public PasswordEncoder getPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
-
-
-
-
-
-
-
-
