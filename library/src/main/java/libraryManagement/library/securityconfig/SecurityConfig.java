@@ -59,7 +59,7 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
             .requestMatchers("/library/Welcome").permitAll()
             .anyRequest().authenticated()
             .and()
-            .formLogin(); // Use form-based login
+            .oauth2Login(); // Use form-based login
 
     return http.build();
 }
