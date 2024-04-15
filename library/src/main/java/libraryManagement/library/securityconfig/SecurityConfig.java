@@ -2,6 +2,8 @@ package libraryManagement.library.securityconfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -56,12 +58,17 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
             .authorizeHttpRequests().requestMatchers(HttpMethod.POST, "/admin/").authenticated()
             //.requestMatchers("/admin/**").hasRole("ADMIN")// Restrict access to /admin/** to users with role ADMIN
             .requestMatchers(HttpMethod.GET, "/user/**").hasRole("USER") // Allow only GET requests for /user/** to users with role USER
-            .requestMatchers("/library/Welcome").permitAll()
+            .requestMatchers("/library/Welcome","library/authenticate").permitAll()
             .anyRequest().authenticated()
             .and()
-            .oauth2Login(); // Use form-based login
+            //.oauth2Login(); // Use form-based
+            .formLogin();
 
     return http.build();
+}
+@Bean
+public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
 }
 
     @Bean
