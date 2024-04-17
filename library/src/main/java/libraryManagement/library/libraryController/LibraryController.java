@@ -7,13 +7,20 @@ import libraryManagement.library.entity.User;
 import libraryManagement.library.libraryService.JwtService;
 import libraryManagement.library.libraryService.LibraryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.AuthenticationException;
+
 import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/library")
 public class LibraryController {
@@ -25,13 +32,13 @@ public class LibraryController {
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/addDetailsOfUser")
-    @PreAuthorize("hasRoles('Admin')")
+    @PreAuthorize("hasAuthority('Admin')")
     public User addUserDetails(@RequestBody User users) {
         return service.saveUserDetails(users);
     }
 
     @PostMapping("/addDetailsOfAdmin")
-    @PreAuthorize("hasRoles('Admin')")
+    @PreAuthorize("hasAuthority('Admin')")
     public Admin addAdminDetail(@RequestBody Admin admins) {
         return service.saveAdminDetails(admins);
     }
@@ -96,7 +103,7 @@ public class LibraryController {
     }
 
     @GetMapping("/getUserByName/{name}")
-    public User findUserDetailByName(@PathVariable String name) {
+    public Optional<User> findUserDetailByName(@PathVariable String name) {
         return service.getUserDetailByName(name);
     }
 
@@ -143,13 +150,30 @@ public class LibraryController {
         return "Successfully deleted";
     }
 
+//    @PostMapping("/authenticate")
+//    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+//        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUserName(), authRequest.getPassword()));
+//      if (authentication.isAuthenticated()) {
+//            return jwtService.generateToken(authRequest.getUserName());
+//       } else {
+//              throw new UsernameNotFoundException("invalid user request !");
+//        }
+//    }
+//}
+
     @PostMapping("/authenticate")
-    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUserName(), authRequest.getPassword()));
-        if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(authRequest.getUserName());
-        } else {
-               throw new UsernameNotFoundException("invalid user request !");
+    public ResponseEntity<?> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUserName(), authRequest.getPassword()));
+            if (authentication.isAuthenticated()) {
+                String token = jwtService.generateToken(authRequest.getUserName());
+                return ResponseEntity.ok(token);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+            }
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed: " + e.getMessage());
         }
     }
 }
+

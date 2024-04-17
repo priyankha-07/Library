@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LibraryService {
@@ -40,7 +41,7 @@ public class LibraryService {
         return bookRepository.findById(id).orElse(null);
     }
 
-    public User getUserDetailByName(String name){
+    public Optional<User> getUserDetailByName(String name){
         return userRepository.findByName(name);
     }
     public Admin getAdminDetailByName(String name){
