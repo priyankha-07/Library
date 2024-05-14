@@ -19,6 +19,8 @@ public class Admin {
     int id;
     String name;
     String email;
+    String password;
+    String roles;
 
 
 

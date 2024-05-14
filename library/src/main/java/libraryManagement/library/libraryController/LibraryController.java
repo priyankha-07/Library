@@ -1,25 +1,21 @@
 package libraryManagement.library.libraryController;
 
-import libraryManagement.library.entity.Admin;
-import libraryManagement.library.entity.AuthRequest;
-import libraryManagement.library.entity.Books;
-import libraryManagement.library.entity.User;
+import libraryManagement.library.entity.*;
 import libraryManagement.library.libraryService.JwtService;
 import libraryManagement.library.libraryService.LibraryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.AuthenticationException;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/library")
@@ -29,40 +25,52 @@ public class LibraryController {
     @Autowired
     private JwtService jwtService;
     @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+
+    @Autowired
     private AuthenticationManager authenticationManager;
 
-    @PostMapping("/addDetailsOfUser")
-    @PreAuthorize("hasAuthority('Admin')")
-    public User addUserDetails(@RequestBody User users) {
-        return service.saveUserDetails(users);
+    @PostMapping("/add/DetailsOfUser")
+
+    public String addUserInfoDetails(@RequestBody UserInfo userinfo) {
+        return service.addUser(userinfo);
     }
 
-    @PostMapping("/addDetailsOfAdmin")
-    @PreAuthorize("hasAuthority('Admin')")
+
+    @PostMapping("/add/DetailsOfReaders")
+    public Readers addReaderDetails(@RequestBody Readers readers) {
+        return service.saveReaderDetails(readers);
+    }
+
+    @PostMapping("/add/DetailsOfAdmin")
     public Admin addAdminDetail(@RequestBody Admin admins) {
         return service.saveAdminDetails(admins);
     }
 
-    @PostMapping("/addDetailsOfBook")
-    @PreAuthorize("hasRoles('Admin')")
+    @PostMapping("/add/DetailsOfBook")
     public Books addBooksdetail(@RequestBody Books books) {
         return service.saveBookDetails(books);
     }
 
-    @PostMapping("/addlistofUsers")
-    @PreAuthorize("hasRoles('Admin')")
-    public List<User> addUserDetails(@RequestBody List<User> users) {
-        return service.saveAllUserDetails(users);
+    @PostMapping("/add/ListOfUserInfo")
+    public List<UserInfo> addUserInfoDetails(@RequestBody List<UserInfo> userinfo) {
+        return service.saveAllUserInfoDetails(userinfo);
     }
 
-    @PostMapping("/addlistofAdmins")
-    @PreAuthorize("hasRoles('Admin')")
+    @PostMapping("/add/ListofUsers")
+    public List<Readers> addReadersDetails(@RequestBody List<Readers> readers) {
+        return service.saveAllReadersDetails(readers);
+    }
+
+    @PostMapping("/add/ListOfAdmins")
     public List<Admin> addAdminDetails(@RequestBody List<Admin> admins) {
         return service.saveAllAdminDetails(admins);
     }
 
-    @PostMapping("/addlistofBooks")
-    @PreAuthorize("hasRoles('Admin')")
+    @PostMapping("/add/ListOfBooks")
     public List<Books> addBooksDetails(@RequestBody List<Books> books) {
         return service.saveAllBookDetails(books);
     }
@@ -72,108 +80,140 @@ public class LibraryController {
         return "Welcome to the Library Management System!";
     }
 
-    @GetMapping("/displayAllUsers")
-    public List<User> findAllUsers() {
-        return service.getAllUsers();
+    @GetMapping("/display/AllUserInfo")
+    public List<UserInfo> findAllUserInfo() {
+        return service.getAllUserInfoDetails();
     }
 
-    @GetMapping("/displayAllAdmins")
+    @GetMapping("/display/AllReaders")
+    public List<Readers> findAllReaders() {
+        return service.getAllReaders();
+    }
+
+    @GetMapping("/display/AllAdmins")
     public List<Admin> findAllAdminDetails() {
         return service.getAllAdmin();
     }
 
-    @GetMapping("/displayAllBooks")
+    @GetMapping("/display/AllBooks")
     public List<Books> findAllBookDetails() {
         return service.getAllBooks();
     }
 
-    @GetMapping("/getUserById/{id}")
-    public User findUserDetailById(@PathVariable int id) {
-        return service.getUserDetailById(id);
+    @GetMapping("/display/ReaderById/{id}")
+    public Readers findReaderDetailById(@PathVariable int id) {
+        return service.getReaderDetailById(id);
     }
 
-    @GetMapping("/getAdminById/{id}")
+    @GetMapping("/display/AdminById/{id}")
     public Admin findAdmindetailById(@PathVariable int id) {
         return service.getAdmindetailById(id);
     }
 
-    @GetMapping("/getBookByid/{id}")
+    @GetMapping("/display/BookByid/{id}")
     public Books findBookdetailById(@PathVariable int id) {
         return service.getBookDetailById(id);
     }
 
-    @GetMapping("/getUserByName/{name}")
-    public Optional<User> findUserDetailByName(@PathVariable String name) {
-        return service.getUserDetailByName(name);
+    @GetMapping("/display/UserByName/{name}")
+    public Readers findReaderDetailByName(@PathVariable String name) {
+        return service.getReaderDetailByName(name);
     }
 
-    @GetMapping("/getAdminByName/{name}")
+    @GetMapping("/display/AdminByName/{name}")
     public Admin findAdmindetailByName(@PathVariable String name) {
         return service.getAdminDetailByName(name);
     }
 
-    @GetMapping("/getBookByName/{name}")
+    @GetMapping("/display/BookByName/{name}")
     public Books findBookdetailByName(@PathVariable String name) {
         return service.getBookDetailByName(name);
     }
 
-    @PutMapping("/updateUser")
-    public User updateUserdetail(@RequestBody User user) {
-        return service.updateUserDetail(user);
+    @PutMapping("/update/UserInfo")
+    public UserInfo updateUserInfodetail(@RequestBody UserInfo userinfo) {
+        return service.updateUserInfoDetail(userinfo);
     }
 
-    @PutMapping("/updateAdmin")
+    @PutMapping("/update/Reader")
+    public Readers updateReadersdetail(@RequestBody Readers reader) {
+        return service.updateReaderDetail(reader);
+    }
+
+    @PutMapping("/update/Admin")
+
     public Admin updateAdmindetail(@RequestBody Admin admin) {
         return service.updateAdminDetail(admin);
     }
 
-    @PutMapping("/updateBook")
+    @PutMapping("/update/Book")
+
     public Books updateBookdetail(@RequestBody Books book) {
         return service.updateBookDetail(book);
     }
 
-    @DeleteMapping("/deleteUser/{id}")
+    @DeleteMapping("/delete/User/{id}")
+
     public String deleteUserDetailById(@PathVariable int id) {
         service.deleteUserDetails(id);
         return "Successfully deleted";
     }
 
-    @DeleteMapping("/deleteAdmin/{id}")
+    @DeleteMapping("/delete/Reader/{id}")
+
+    public String deleteReaderDetailById(@PathVariable int id) {
+        service.deleteReaderDetails(id);
+        return "Successfully deleted";
+    }
+
+    @DeleteMapping("/delete/Admin/{id}")
+
     public String deleteAdminDetailById(@PathVariable int id) {
         service.deleteAdminDetails(id);
         return "Successfully deleted";
     }
 
-    @DeleteMapping("/deleteBook/{id}")
+    @DeleteMapping("/delete/Book/{id}")
+
     public String deleteBookDetailById(@PathVariable int id) {
         service.deleteBookDetails(id);
         return "Successfully deleted";
     }
 
-//    @PostMapping("/authenticate")
-//    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-//        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUserName(), authRequest.getPassword()));
-//      if (authentication.isAuthenticated()) {
-//            return jwtService.generateToken(authRequest.getUserName());
-//       } else {
-//              throw new UsernameNotFoundException("invalid user request !");
-//        }
-//    }
-//}
-
     @PostMapping("/authenticate")
-    public ResponseEntity<?> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUserName(), authRequest.getPassword()));
-            if (authentication.isAuthenticated()) {
-                String token = jwtService.generateToken(authRequest.getUserName());
-                return ResponseEntity.ok(token);
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
-            }
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed: " + e.getMessage());
+   // @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+
+//    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+//        try {
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(
+//                            authRequest.getUsername(),
+//                            authRequest.getPassword()));
+//
+//            if (authentication.isAuthenticated()) {
+//                return jwtService.generateToken(authRequest.getUsername());
+//            } else {
+//                throw new BadCredentialsException("Invalid credentials");
+//            }
+//        } catch (AuthenticationException e) {
+//            throw new BadCredentialsException("Invalid credentials");
+//        }
+    public JwtResponseDTO authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+        if (authentication.isAuthenticated()) {
+            return JwtResponseDTO.builder()
+                    .accessToken(jwtService.generateToken(authRequest.getUsername()))
+                    .build();
+        } else {
+            throw new UsernameNotFoundException("Invalid user request..!!");
         }
     }
 }
+
+
+
+
+
+
+
 

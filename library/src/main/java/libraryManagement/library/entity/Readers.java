@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "readers")
 
-public class User {
+public class Readers {
     @Id
     @GeneratedValue
     int id;

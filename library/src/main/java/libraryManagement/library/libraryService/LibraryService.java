@@ -2,27 +2,39 @@ package libraryManagement.library.libraryService;
 
 import libraryManagement.library.entity.Admin;
 import libraryManagement.library.entity.Books;
-import libraryManagement.library.entity.User;
+import libraryManagement.library.entity.Readers;
+import libraryManagement.library.entity.UserInfo;
 import libraryManagement.library.repository.AdminRepository;
 import libraryManagement.library.repository.BookRepository;
-import libraryManagement.library.repository.UserRepository;
+import libraryManagement.library.repository.ReadersRepository;
+import libraryManagement.library.repository.UserInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class LibraryService {
 @Autowired
     private AdminRepository adminRepository;
 @Autowired
-    private UserRepository  userRepository;
+    private ReadersRepository readersRepository;
 @Autowired
     private BookRepository  bookRepository;
+@Autowired
+private UserInfoRepository userInfoRepository;
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
+    public List<UserInfo> getAllUserInfoDetails() {
+        return userInfoRepository.findAll();
+    }
+
+    public List<Readers> getAllReaders() {
+        return readersRepository.findAll();
     }
     public List<Admin> getAllAdmin() {
         return adminRepository.findAll();
@@ -31,8 +43,8 @@ public class LibraryService {
         return bookRepository.findAll();
     }
 
-    public User getUserDetailById(int id){
-        return userRepository.findById(id).orElse(null);
+    public Readers getReaderDetailById(int id){
+        return readersRepository.findById(id).orElse(null);
     }
     public Admin getAdmindetailById(int id){
         return adminRepository.findById(id).orElse(null);
@@ -41,8 +53,8 @@ public class LibraryService {
         return bookRepository.findById(id).orElse(null);
     }
 
-    public Optional<User> getUserDetailByName(String name){
-        return userRepository.findByName(name);
+    public Readers getReaderDetailByName(String name){
+        return readersRepository.findByName(name);
     }
     public Admin getAdminDetailByName(String name){
         return adminRepository.findByName(name);
@@ -50,9 +62,11 @@ public class LibraryService {
     public Books getBookDetailByName(String name){
         return bookRepository.findByName(name);
     }
-
-    public User saveUserDetails(User user){
-        return userRepository. save(user);
+    public UserInfo saveUserInfoDetails(UserInfo userinfo){
+        return userInfoRepository. save(userinfo);
+    }
+    public Readers saveReaderDetails(Readers readers){
+        return readersRepository. save(readers);
     }
     public Admin saveAdminDetails(Admin admin){
         return adminRepository. save(admin);
@@ -61,8 +75,11 @@ public class LibraryService {
         return bookRepository. save(book);
     }
 
-    public List<User> saveAllUserDetails(List<User> users){
-        return userRepository.saveAll(users);
+    public List<UserInfo> saveAllUserInfoDetails(List<UserInfo> userinfo){
+        return userInfoRepository.saveAll(userinfo);
+    }
+    public List<Readers> saveAllReadersDetails(List<Readers> readers){
+        return readersRepository.saveAll(readers);
     }
     public List<Admin> saveAllAdminDetails(List<Admin> admins){
         return adminRepository.saveAll(admins);
@@ -71,13 +88,20 @@ public class LibraryService {
         return bookRepository.saveAll(books);
     }
 
-
-    public User updateUserDetail(User user) {
-        User u = userRepository.findById(user.getId()).orElse(null);
-        u.setName(user.getName());
-        u.setAddress(user.getAddress());
-        u.setBookName(user.getBookName());
-        return userRepository.save(u);
+    public UserInfo updateUserInfoDetail(UserInfo userinfo) {
+        UserInfo u = userInfoRepository.findById(userinfo.getId()).orElse(null);
+        u.setName(userinfo.getName());
+        u.setEmail(userinfo.getEmail());
+        u.setPassword(userinfo.getPassword());
+        u.setRoles(userinfo.getRoles());
+        return userInfoRepository.save(u);
+    }
+    public Readers updateReaderDetail(Readers readers) {
+        Readers r = readersRepository.findById(readers.getId()).orElse(null);
+        r.setName(readers.getName());
+        r.setAddress(readers.getAddress());
+        r.setBookName(readers.getBookName());
+        return readersRepository.save(r);
     }
     public Admin updateAdminDetail(Admin admin) {
         Admin a = adminRepository.findById(admin.getId()).orElse(null);
@@ -91,10 +115,14 @@ public class LibraryService {
         b.setQuantity(book.getQuantity());
         return bookRepository.save(b);
     }
-
-
     public String deleteUserDetails(int id){
-        userRepository.deleteById(id);
+        userInfoRepository.deleteById(id);
+        return "deleted successfully"+id;
+
+    }
+
+    public String deleteReaderDetails(int id){
+        readersRepository.deleteById(id);
         return "deleted successfully"+id;
 
     }
@@ -106,6 +134,11 @@ public class LibraryService {
         bookRepository.deleteById(id);
         return "deleted successfully"+id;
 
+    }
+    public String addUser(UserInfo userInfo){
+        userInfo.setPassword(passwordEncoder.encode(userInfo.getPassword()));
+        userInfoRepository.save(userInfo);
+        return "user added to database";
     }
 
 }
